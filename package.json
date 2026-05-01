@@ -1,0 +1,43 @@
+{
+  "name": "scrap-marketplace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "payload": "payload",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap"
+  },
+  "dependencies": {
+    "next": "^16.2.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "payload": "3.83.0",
+    "@payloadcms/next": "3.83.0",
+    "@payloadcms/db-mongodb": "3.83.0",
+    "@payloadcms/richtext-lexical": "3.83.0",
+    "graphql": "^16.9.0",
+    "next-intl": "^4.9.1",
+    "react-hook-form": "^7.54.2",
+    "@hookform/resolvers": "^3.10.0",
+    "zod": "^3.24.2",
+    "sharp": "^0.33.5",
+    "tailwind-merge": "^2.6.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/node": "^20.17.14",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "^15.1.6"
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "common": {
+    "appName": "uselessbd",
+    "tagline": "Your useless = someone's useful",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "error": "An error occurred. Please try again.",
+    "success": "Success!",
+    "required": "This field is required",
+    "save": "Save",
+    "back": "Go Back",
+    "viewAll": "View All"
+  },
+  "nav": {
+    "home": "Home",
+    "submitScrap": "Sell An Item",
+    "dashboard": "My Listings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "admin": "Admin Panel"
+  },
+  "home": {
+    "hero": {
+      "badge": "Now live in Bangladesh",
+      "title": "Your useless = someone's useful",
+      "subtitle": "One person's clutter is another's treasure. List your unused stuff in 2 minutes and turn it into টাকা — or score great deals on pre-loved items near you.",
+      "cta": "বিক্রি করুন (Sell)",
+      "secondary": "How It Works",
+      "socialProof": "Joined by thousands of Bangladeshis buying & selling secondhand 💙"
+    },
+    "stats": {
+      "listings": "Active Listings",
+      "dealers": "Verified Buyers",
+      "completed": "Happy Deals"
+    },
+    "values": {
+      "valueSustainability": "Sustainable",
+      "valueTrust": "Trusted",
+      "valueCommunity": "Local Community",
+      "valueTransparency": "Honest Listings"
+    },
+    "howItWorks": {
+      "title": "List it. Get connected. Done.",
+      "subtitle": "Three easy steps — no rocket science, we promise",
+      "step1Title": "List Your Item",
+      "step1Desc": "Snap a photo, add a price, describe the condition honestly. Done in 2 minutes.",
+      "step2Title": "Get Connected",
+      "step2Desc": "Our team reviews and connects you with an interested buyer by phone — simple.",
+      "step3Title": "Close the Deal",
+      "step3Desc": "Meet up, hand over the item, and collect your টাকা. That's a wrap!"
+    },
+    "categories": {
+      "title": "What are you selling today?",
+      "subtitle": "From gadgets to furniture — if it's unused, someone wants it",
+      "electronics": "Electronics",
+      "furniture": "Furniture",
+      "fashion": "Fashion",
+      "books": "Books",
+      "sports": "Sports",
+      "home": "Home & Garden"
+    },
+    "trust": {
+      "title": "Why Bangladeshis trust uselessbd",
+      "body": "We built uselessbd because we believe that every item deserves a second life. No junk — just honest listings, real people, and fair prices. আপনার পুরনো জিনিস কারো কাজে আসবেই।",
+      "tag1": "Free to list",
+      "tag2": "No hidden fees",
+      "tag3": "Phone-verified buyers",
+      "tag4": "Made for Bangladesh 🇧🇩"
+    },
+    "cta": {
+      "title": "Ready to declutter?",
+      "subtitle": "Turn your unused stuff into cash — or find something great at a great price.",
+      "buttonSell": "List an Item Free",
+      "buttonBuy": "Browse Listings"
+    }
+  },
+  "listing": {
+    "title": "Listing Title",
+    "titlePlaceholder": "e.g., Old Canon camera, barely used",
+    "type": "Category",
+    "typePlaceholder": "Select a category",
+    "weight": "Estimated Weight (kg)",
+    "weightPlaceholder": "e.g., 2",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the item honestly — condition, any defects, why you're selling it…",
+    "location": "Your Location",
+    "locationPlaceholder": "e.g., Mirpur-10, Dhaka",
+    "phone": "Your Phone Number",
+    "phonePlaceholder": "e.g., 01712345678",
+    "phoneHelp": "We'll call you to arrange a meetup with the buyer",
+    "images": "Photos",
+    "imagesHelp": "Upload up to 5 photos (max 5 MB each). Real photos build trust!",
+    "submitListing": "List My Item",
+    "submitting": "Listing…",
+    "submitSuccess": "Your item is live! We'll connect you with a buyer shortly. 💙",
+    "status": {
+      "pending": "Pending",
+      "connected": "Connected",
+      "completed": "Sold",
+      "rejected": "Rejected"
+    },
+    "types": {
+      "metal": "Metal",
+      "plastic": "Plastic",
+      "electronics": "Electronics",
+      "paper": "Paper",
+      "glass": "Glass",
+      "other": "Other"
+    },
+    "assignedDealer": "Assigned Buyer",
+    "noDealer": "Awaiting buyer match"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back!",
+      "subtitle": "Sign in to manage your listings on uselessbd",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Sign In",
+      "submitting": "Signing in…",
+      "noAccount": "New here?",
+      "register": "Create an account",
+      "error": "Invalid email or password"
+    },
+    "register": {
+      "title": "Join uselessbd",
+      "subtitle": "Turn your useless stuff into someone else's treasure — it's free",
+      "name": "Full Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone Number",
+      "phonePlaceholder": "01XXXXXXXXX",
+      "phoneHelp": "We'll use this to connect you with buyers/sellers",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "submit": "Create Account",
+      "submitting": "Creating account…",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in",
+      "error": "Registration failed. That email might already be in use."
+    }
+  },
+  "dashboard": {
+    "title": "My Listings",
+    "subtitle": "Track all your listed items in one place",
+    "noListings": "Nothing listed yet — your stuff won't sell itself! 😄",
+    "submitFirst": "List Your First Item",
+    "weight": "kg",
+    "assignedDealer": "Buyer",
+    "dealerPhone": "Buyer Phone",
+    "submittedOn": "Listed on",
+    "newListing": "New Listing"
+  },
+  "submit": {
+    "title": "List an Item",
+    "subtitle": "Honest description + clear photos = fast sale. Fill in the details below."
+  },
+  "errors": {
+    "unauthorized": "Please log in to continue.",
+    "notFound": "Page not found.",
+    "serverError": "Something went wrong on our end. Please try again later."
+  }
+}
+
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "error": "An error occurred. Please try again.",
+    "success": "Success!",
+    "required": "This field is required",
+    "save": "Save",
+    "back": "Go Back",
+    "viewAll": "View All"
+  },
+  "nav": {
+    "home": "Home",
+    "submitScrap": "Submit Scrap",
+    "dashboard": "My Listings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "admin": "Admin Panel"
+  },
+  "home": {
+    "hero": {
+      "title": "Turn Your Scrap Into Cash",
+      "subtitle": "List your scrap materials and get connected with verified dealers across Bangladesh. Fast, simple, and free.",
+      "cta": "List Your Scrap Now",
+      "secondary": "Learn How It Works"
+    },
+    "stats": {
+      "listings": "Active Listings",
+      "dealers": "Verified Dealers",
+      "completed": "Successful Deals"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Three simple steps to sell your scrap",
+      "step1Title": "Submit Your Listing",
+      "step1Desc": "Fill in details about your scrap – type, weight, photos, and your phone number.",
+      "step2Title": "Get Connected",
+      "step2Desc": "Our team reviews your listing and connects you with the right dealer by phone.",
+      "step3Title": "Complete the Deal",
+      "step3Desc": "Meet the dealer, hand over the scrap, and get paid on the spot."
+    },
+    "scrapTypes": {
+      "title": "We Accept All Types",
+      "metal": "Metal",
+      "plastic": "Plastic",
+      "electronics": "Electronics",
+      "paper": "Paper",
+      "glass": "Glass",
+      "other": "Other"
+    },
+    "cta": {
+      "title": "Ready to sell your scrap?",
+      "subtitle": "Join thousands of households and businesses across Bangladesh.",
+      "button": "Get Started Free"
+    }
+  },
+  "listing": {
+    "title": "Listing Title",
+    "titlePlaceholder": "e.g., Old iron rods and scrap metal",
+    "type": "Scrap Type",
+    "typePlaceholder": "Select scrap type",
+    "weight": "Estimated Weight (kg)",
+    "weightPlaceholder": "e.g., 50",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the condition, defects, or any notes about the scrap…",
+    "location": "Pickup Location",
+    "locationPlaceholder": "e.g., Mirpur-10, Dhaka",
+    "phone": "Your Phone Number",
+    "phonePlaceholder": "e.g., 01712345678",
+    "phoneHelp": "We will contact you by phone to arrange the pickup",
+    "images": "Photos of Scrap",
+    "imagesHelp": "Upload up to 5 photos (max 5 MB each)",
+    "submitListing": "Submit Listing",
+    "submitting": "Submitting…",
+    "submitSuccess": "Your listing has been submitted! We will contact you shortly.",
+    "status": {
+      "pending": "Pending",
+      "connected": "Connected",
+      "completed": "Completed",
+      "rejected": "Rejected"
+    },
+    "types": {
+      "metal": "Metal",
+      "plastic": "Plastic",
+      "electronics": "Electronics",
+      "paper": "Paper",
+      "glass": "Glass",
+      "other": "Other"
+    },
+    "assignedDealer": "Assigned Dealer",
+    "noDealer": "Awaiting dealer assignment"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to manage your scrap listings",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Sign In",
+      "submitting": "Signing in…",
+      "noAccount": "Don't have an account?",
+      "register": "Register here",
+      "error": "Invalid email or password"
+    },
+    "register": {
+      "title": "Create an Account",
+      "subtitle": "Join Scrap Marketplace today – it's free",
+      "name": "Full Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone Number",
+      "phonePlaceholder": "01XXXXXXXXX",
+      "phoneHelp": "We'll use this to contact you about your scrap listings",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "submit": "Create Account",
+      "submitting": "Creating account…",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in",
+      "error": "Registration failed. The email may already be in use."
+    }
+  },
+  "dashboard": {
+    "title": "My Listings",
+    "subtitle": "Track the status of all your submitted scrap listings",
+    "noListings": "You haven't submitted any listings yet.",
+    "submitFirst": "Submit Your First Listing",
+    "weight": "kg",
+    "assignedDealer": "Dealer",
+    "dealerPhone": "Dealer Phone",
+    "submittedOn": "Submitted",
+    "newListing": "New Listing"
+  },
+  "submit": {
+    "title": "Submit a Scrap Listing",
+    "subtitle": "Fill in the details below and we'll connect you with a dealer"
+  },
+  "errors": {
+    "unauthorized": "Please log in to continue.",
+    "notFound": "Page not found.",
+    "serverError": "Something went wrong on our end. Please try again later."
+  }
+}

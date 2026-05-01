@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* --font-inter is injected by next/font at runtime */
+    --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Use data attribute for smooth scroll (Next.js 16 compatible) */
+  html[data-scroll-behavior='smooth'] {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-charcoal antialiased;
+    font-family: var(--font-sans);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
