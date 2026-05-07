@@ -20,8 +20,13 @@ function RegisterContent() {
         {/* Logo / Brand */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <span className="text-3xl font-extrabold text-primary-600">🌿 Scrap</span>
-            <span className="text-3xl font-extrabold text-gray-800">Market</span>
+          <img
+            src="/logo.jpeg"
+            alt="UsedLess Logo"
+            className="mx-auto h-12 w-auto mb-2"
+          />
+            <span className="text-3xl font-extrabold text-primary-600">Used</span>
+            <span className="text-3xl font-extrabold text-gray-800">Less</span>
           </Link>
         </div>
 

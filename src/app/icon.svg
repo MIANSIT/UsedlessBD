@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Green flowing accent lines (top-left, mirroring logo swoosh) -->
+  <path d="M10 6 Q18 8 22 18" stroke="#10B981" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <path d="M10 10 Q20 13 24 24" stroke="#10B981" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M10 14 Q21 18 25 30" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Green horizontal bar (T crossbar, top-right) -->
+  <rect x="32" y="14" width="22" height="7" rx="2" fill="#10B981"/>
+
+  <!-- Green vertical stem + tail swoosh (bottom-right) -->
+  <path d="M46 21 L46 42 Q46 54 36 58 Q28 60 24 55" stroke="#10B981" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+  <!-- Blue U letterform -->
+  <path d="M18 14 L18 40 Q18 54 32 54 Q46 54 46 40" stroke="#0EA5E9" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+  <!-- Blue diamond dot (top of U) -->
+  <rect x="28" y="8" width="8" height="8" rx="1" fill="#0EA5E9" transform="rotate(45 32 12)"/>
+</svg>

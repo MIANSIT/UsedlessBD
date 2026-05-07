@@ -18,64 +18,63 @@
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 (App Router, Turbopack) |
-| CMS / Backend | Payload CMS v3 (co-located) |
-| Database | MongoDB |
-| Auth | Payload JWT (httpOnly cookie, 7-day) |
+| Framework | Next.js 15 (App Router) |
+| Database | Firebase Firestore |
+| Auth | Firebase Auth + Admin session cookies (httpOnly, 7-day) |
+| Storage | Firebase Storage (images, 5 MB cap) |
 | Styling | Tailwind CSS |
 | i18n | next-intl v4 — `en` + `bn` |
 | Forms | React Hook Form + Zod |
-| Images | Payload Upload + sharp (5 MB cap) |
 | Language | TypeScript throughout |
-| Infra | Docker Compose (local dev) |
+| Infra | Firebase (no Docker / local DB required) |
 
 Key file locations:
-- Collections (data models): `src/collections/`
 - Server actions: `src/app/actions/`
+- Firebase client init: `src/lib/firebase.ts`
+- Firebase Admin SDK: `src/lib/firebase-admin.ts`
+- Media upload API: `src/app/api/media/route.ts`
 - i18n strings: `src/i18n/messages/`
 - Routing helpers: `src/lib/navigation.ts`
-- Payload config: `src/payload.config.ts`
 
 ---
 
-## 3. Data Models (Collections)
+## 3. Data Models (Firestore Collections)
 
-### Users
+### `users/{uid}`
 | Field | Type | Notes |
 |---|---|---|
-| name | text | required |
-| email | email | built-in |
-| phone | text | required; BD format `^(\+880\|880\|0)1[3-9]\d{8}$` |
-| role | select | `user` (default) \| `admin`; role cannot be self-assigned |
+| name | string | required |
+| email | string | from Firebase Auth |
+| phone | string | required; BD format `^(\+880\|880\|0)1[3-9]\d{8}$` |
+| role | string | `user` (default) \| `admin` |
+| createdAt | ISO string | set on registration |
 
-### ScrapListings
+### `listings/{id}`
 | Field | Type | Notes |
 |---|---|---|
-| title | text | required |
-| type | select | `metal \| plastic \| electronics \| paper \| glass \| other` |
+| title | string | required |
+| type | string | `metal \| plastic \| electronics \| paper \| glass \| other` |
 | weight | number | kg, min 0.1 |
-| description | textarea | optional |
-| phone | text | BD format; required |
-| location | text | thana / district |
-| images | upload[] | optional; up to 5 |
-| status | select | `pending` → `connected` → `completed \| rejected`; admin-only change |
-| assignedDealer | relation | → Dealers; admin-only |
-| adminNotes | textarea | admin-only read/write |
-| user | relation | → Users; auto-set on creation |
+| description | string | optional |
+| phone | string | BD format; required |
+| location | string | thana / district |
+| images | `{url: string}[]` | optional; up to 5; stored as Firebase Storage URLs |
+| status | string | `pending` → `connected` → `completed \| rejected`; admin-only change |
+| assignedDealer | map | `{name, phone}` set by admin; optional |
+| adminNotes | string | admin-only |
+| userId | string | Firebase Auth UID of submitter |
+| createdAt | Timestamp | Firestore server timestamp |
 
-### Dealers
+### `dealers/{id}`
 | Field | Type | Notes |
 |---|---|---|
-| name | text | required |
-| phone / altPhone | text | required |
-| address | text | required |
-| area | text | service thana/district |
-| materialsAccepted | multi-select | mirrors listing `type` options |
-| isActive | checkbox | inactive dealers excluded from assignment |
-| notes | textarea | internal |
-
-### Media
-Standard Payload upload collection. 5 MB file size limit.
+| name | string | required |
+| phone / altPhone | string | required |
+| address | string | required |
+| area | string | service thana/district |
+| materialsAccepted | string[] | mirrors listing `type` options |
+| isActive | boolean | inactive dealers excluded from assignment |
+| notes | string | internal |
 
 ---
 
@@ -114,8 +113,8 @@ The following items are the minimum requirements for the business to operate and
 - [ ] **Status notification to user** — Email or SMS when listing moves to `connected` (user must know a dealer will call them)
 - [ ] **Basic SEO** — `<title>`, `description`, Open Graph meta per page
 - [ ] **Error pages** — proper 404 and error boundaries
-- [ ] **Production environment config** — `PAYLOAD_SECRET`, `MONGODB_URI`, `NEXT_PUBLIC_SERVER_URL` in `.env.production`
-- [ ] **Production Docker Compose or hosting** — deploy to a real server (Railway, DigitalOcean, Vercel + MongoDB Atlas, etc.)
+      - [ ] **Production environment config** — Firebase Admin credentials + `NEXT_PUBLIC_SERVER_URL` in `.env.production`
+      - [ ] **Production hosting** — deploy to Vercel (recommended); Firebase project already cloud-hosted
 - [ ] **Domain & SSL** — public `.com.bd` or `.bd` domain with HTTPS
 - [ ] **Admin account created** — first admin user seeded or created manually before removing public registration (or lock `role: admin` creation behind invite)
 - [ ] **Legal pages** — Privacy Policy and Terms of Service (required for user data collection in BD)
@@ -192,22 +191,33 @@ The following items are the minimum requirements for the business to operate and
 | No rate limiting on listing submission | Spam/abuse possible | Medium |
 | Admin notification on new listing is absent | Admin must manually poll the panel | High |
 | No user ability to edit or delete own listing | User frustration | Low (post-MVP) |
-| Role assignment has no invite/approval flow | First admin must be created via CLI or MongoDB directly | Document the procedure |
-| Images stored on local filesystem by default | Will be lost on server restart/redeploy | Use cloud storage (S3/Cloudflare R2) in production |
+| Role assignment has no invite/approval flow | First admin must be created via Firebase Console → Authentication → set custom claim or set `role: admin` in Firestore | Document the procedure |
+| Images stored in Firebase Storage | Public read is enabled via `makePublic()`; ensure Storage rules are set appropriately before launch | Review before production |
 
 ---
 
 ## 8. Environment Variables Required
 
 ```env
-# Payload / App
-PAYLOAD_SECRET=           # strong random string, min 32 chars
-MONGODB_URI=              # mongodb+srv://... (Atlas) or mongodb://mongo:27017/scrapbd (Docker)
-NEXT_PUBLIC_SERVER_URL=   # https://yourdomain.com.bd
+# Firebase client (safe to expose)
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
+
+# Firebase Admin SDK — generate from Firebase Console → Project Settings → Service Accounts
+FIREBASE_ADMIN_PROJECT_ID=
+FIREBASE_ADMIN_CLIENT_EMAIL=
+FIREBASE_ADMIN_PRIVATE_KEY=     # include full -----BEGIN/END PRIVATE KEY-----; \n as literal \n
+
+NEXT_PUBLIC_SERVER_URL=         # https://yourdomain.com.bd
 
 # Optional (add when implementing notifications)
-RESEND_API_KEY=           # or SMTP credentials for email
-SMS_API_KEY=              # e.g. SSL Wireless or Twilio for BD SMS
+RESEND_API_KEY=                 # or SMTP credentials for email
+SMS_API_KEY=                    # e.g. SSL Wireless or Twilio for BD SMS
 ```
 
 ---
@@ -215,13 +225,16 @@ SMS_API_KEY=              # e.g. SSL Wireless or Twilio for BD SMS
 ## 9. Coding Conventions (for AI agents)
 
 - **Locale-aware links:** Always use `Link` from `@/lib/navigation` (wraps next-intl), not `next/link`
-- **Server actions** live in `src/app/actions/`; they use `getPayload()` from `@/lib/payload` and `getLocale()` / `getTranslations()` from `next-intl/server`
+- **Server actions** live in `src/app/actions/`; they use `adminDb` / `adminAuth` from `@/lib/firebase-admin` and verify the `session` httpOnly cookie
+- **Auth helper:** call `getCurrentUser()` from `@/app/actions/auth` (or inline `getSessionUser()`) in any server action that needs the logged-in user
 - **Phone validation regex:** `^(\+880|880|0)1[3-9]\d{8}$` — use this consistently for any new BD phone field
 - **i18n strings:** Never hardcode user-visible text; add keys to both `en.json` and `bn.json`
-- **Access control:** Enforce at the Payload collection level, not only in UI
+- **Access control:** Verify session cookie in every server action; role checks done against the `users` Firestore doc
 - **Status flow:** `pending → connected → completed | rejected` — do not skip states
-- **Image uploads:** Use Payload's Media collection; reference by ID in other collections
+- **Image uploads:** POST multipart to `/api/media`; returns `{ id: url, url }`; store as `images: [{url}]` in Firestore
+- **Admin operations:** Manage listings/dealers directly via Firebase Console or build a custom admin page; no Payload admin panel
+- **Session cookie name:** `session` (httpOnly, 7-day Firebase session cookie)
 
 ---
 
-*Last updated: April 2026*
+*Last updated: May 2026*

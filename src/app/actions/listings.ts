@@ -1,9 +1,24 @@
 'use server'
 
-import { headers } from 'next/headers'
-import { getPayload } from 'payload'
-import config from '@payload-config'
+import { cookies } from 'next/headers'
 import { z } from 'zod'
+import { adminAuth, adminDb } from '@/lib/firebase-admin'
+import { FieldValue } from 'firebase-admin/firestore'
+
+async function getSessionUser() {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('session')?.value
+  if (!sessionCookie) return null
+
+  try {
+    const decoded = await adminAuth().verifySessionCookie(sessionCookie, true)
+    const userDoc = await adminDb().collection('users').doc(decoded.uid).get()
+    if (!userDoc.exists) return null
+    return { uid: decoded.uid, ...(userDoc.data() as Record<string, unknown>) }
+  } catch {
+    return null
+  }
+}
 
 const CreateListingSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(100),
@@ -18,11 +33,11 @@ const CreateListingSchema = z.object({
 })
 
 export type ListingResult =
-  | { success: true; id?: string | number }
+  | { success: true; id?: string }
   | { success: false; error: string; fieldErrors?: Record<string, string[]> }
 
 export async function createListingAction(
-  imageIds: (string | number)[],
+  imageUrls: string[],
   _prevState: ListingResult | null,
   formData: FormData,
 ): Promise<ListingResult> {
@@ -44,32 +59,19 @@ export async function createListingAction(
     }
   }
 
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
-
-  if (!user) {
-    return { success: false, error: 'You must be logged in to submit a listing.' }
-  }
+  const user = await getSessionUser()
+  if (!user) return { success: false, error: 'You must be logged in to submit a listing.' }
 
   try {
-    const listing = await payload.create({
-      collection: 'scrap-listings',
-      data: {
-        title: parsed.data.title,
-        type: parsed.data.type,
-        weight: parsed.data.weight,
-        description: parsed.data.description,
-        location: parsed.data.location,
-        phone: parsed.data.phone,
-        images: imageIds,
-        status: 'pending',
-        user: user.id,
-      },
-      overrideAccess: false,
-      user,
+    const ref = await adminDb().collection('listings').add({
+      ...parsed.data,
+      images: imageUrls.map((url) => ({ url })),
+      status: 'pending',
+      userId: user.uid,
+      createdAt: FieldValue.serverTimestamp(),
     })
 
-    return { success: true, id: listing.id }
+    return { success: true, id: ref.id }
   } catch (err) {
     console.error('Error creating listing:', err)
     return { success: false, error: 'Failed to create listing. Please try again.' }
@@ -77,19 +79,25 @@ export async function createListingAction(
 }
 
 export async function getUserListings() {
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
-
+  const user = await getSessionUser()
   if (!user) return null
 
-  const { docs } = await payload.find({
-    collection: 'scrap-listings',
-    where: { user: { equals: user.id } },
-    sort: '-createdAt',
-    depth: 2, // populate assignedDealer
-    overrideAccess: false,
-    user,
+  const snapshot = await adminDb()
+    .collection('listings')
+    .where('userId', '==', user.uid)
+    .orderBy('createdAt', 'desc')
+    .get()
+
+  const listings = snapshot.docs.map((doc) => {
+    const data = doc.data()
+    return {
+      id: doc.id,
+      ...data,
+      createdAt:
+        data.createdAt?.toDate?.()?.toISOString() ?? new Date().toISOString(),
+    }
   })
 
-  return { user, listings: docs }
+  return { user, listings }
 }
+

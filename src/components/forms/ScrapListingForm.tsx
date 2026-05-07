@@ -67,14 +67,11 @@ export default function ScrapListingForm() {
         formData.append('file', file)
         formData.append('alt', file.name)
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media`,
-          {
+        const res = await fetch('/api/media', {
             method: 'POST',
             body: formData,
             credentials: 'include',
-          },
-        )
+          })
 
         if (!res.ok) {
           setUploadError(`Failed to upload ${file.name}`)

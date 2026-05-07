@@ -11,13 +11,9 @@ export default function Footer() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2 mb-3" aria-label="uselessbd home">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500 text-white font-extrabold text-base leading-none">
-                U
-              </span>
-              <span className="text-lg font-extrabold text-white tracking-tight">
-                useless<span className="text-primary-400">bd</span>
-              </span>
+            <Link href="/" className="inline-flex mb-3" aria-label="uselessbd home">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.jpeg" alt="uselessbd" className="h-10 w-auto" />
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
               {t('common.tagline')}.
