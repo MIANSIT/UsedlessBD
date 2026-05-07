@@ -1,6 +1,6 @@
 # 🌿 Scrap Marketplace
 
-A full-stack web application built with **Next.js 16 (App Router)** and **Payload CMS v3**, designed for the Bangladesh market. Users submit scrap listings, admins connect them with verified dealers — primarily via phone.
+A full-stack web application built with **Next.js 16 (App Router)** and **Firebase**, designed for the Bangladesh market. Users submit scrap listings, admins connect them with verified dealers — primarily via phone.
 
 ---
 
@@ -9,9 +9,9 @@ A full-stack web application built with **Next.js 16 (App Router)** and **Payloa
 | Layer | Technology |
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack) |
-| CMS / Backend | Payload CMS v3 (local API, same codebase) |
-| Database | MongoDB |
-| Auth | Payload built-in JWT auth |
+| Database | Firebase Firestore |
+| Auth | Firebase Auth + session cookies |
+| Storage | Firebase Storage |
 | Styling | Tailwind CSS |
 | i18n | next-intl 4 (English + Bengali) |
 | Forms | React Hook Form + Zod validation |
@@ -23,23 +23,17 @@ A full-stack web application built with **Next.js 16 (App Router)** and **Payloa
 ```
 src/
 ├── app/
-│   ├── (payload)/           # Payload CMS admin + API routes
-│   │   ├── admin/[[...segments]]/
-│   │   └── api/[...slug]/
 │   ├── [locale]/            # Frontend pages (en / bn)
 │   │   ├── page.tsx         # Home
 │   │   ├── submit/          # Submit scrap listing
 │   │   ├── dashboard/       # User dashboard
 │   │   ├── login/
 │   │   └── register/
-│   └── actions/             # Next.js Server Actions
-│       ├── auth.ts
-│       └── listings.ts
-├── collections/             # Payload CMS collection configs
-│   ├── Users.ts
-│   ├── ScrapListings.ts
-│   ├── Dealers.ts
-│   └── Media.ts
+│   ├── actions/             # Next.js Server Actions
+│   │   ├── auth.ts
+│   │   └── listings.ts
+│   └── api/
+│       └── media/           # Image upload endpoint
 ├── components/
 │   ├── auth/                # LoginForm, RegisterForm
 │   ├── dashboard/           # ListingCard
@@ -52,11 +46,11 @@ src/
 │   ├── routing.ts
 │   └── request.ts
 ├── lib/
+│   ├── firebase.ts          # Firebase client SDK
+│   ├── firebase-admin.ts    # Firebase Admin SDK
 │   ├── navigation.ts        # next-intl locale-aware Link / router
-│   ├── payload.ts
 │   └── utils.ts
-├── proxy.ts                 # Auth guard + i18n locale routing (Next.js 16)
-└── payload.config.ts        # Payload CMS configuration
+└── proxy.ts                 # Auth guard + i18n locale routing
 ```
 
 ---
@@ -66,7 +60,7 @@ src/
 ### Prerequisites
 
 - Node.js ≥ 20
-- MongoDB running locally or a MongoDB Atlas URI
+- Firebase project with Auth, Firestore, and Storage enabled
 - npm ≥ 10
 
 ### 1. Clone and install dependencies
@@ -81,59 +75,36 @@ npm install
 ### 2. Configure environment variables
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Edit `.env`:
+Edit `.env.local`:
 
 ```env
-# MongoDB connection string
-DATABASE_URI=mongodb://127.0.0.1:27017/scrap-marketplace
+# Firebase client SDK
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
 
-# Strong random secret (generate with: openssl rand -base64 32)
-PAYLOAD_SECRET=your-super-secret-key
+# Firebase Admin SDK — generate from Firebase Console → Project Settings → Service Accounts
+FIREBASE_ADMIN_PROJECT_ID=...
+FIREBASE_ADMIN_CLIENT_EMAIL=...
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 
-# App URL (used for media URLs and API calls)
+# App URL
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 ```
 
-### 3. Start MongoDB
-
-**Option A – Docker Compose (recommended, included)**
-
-Make sure Docker Desktop is running, then:
-
-```bash
-docker compose up -d
-```
-
-**Option B – Homebrew (macOS)**
-
-```bash
-brew tap mongodb/brew
-brew install mongodb-community
-brew services start mongodb-community
-```
-
-**Option C – MongoDB Atlas (cloud)**
-
-Create a free cluster at [cloud.mongodb.com](https://cloud.mongodb.com) and set `DATABASE_URI` in `.env`.
-
-### 4. Run the development server
+### 3. Run the development server
 
 ```bash
 npm run dev
 ```
 
-App available at:
-- **Frontend:** http://localhost:3000
-- **Admin Panel:** http://localhost:3000/admin
-
-### 5. Create the first admin user
-
-Open http://localhost:3000/admin — Payload will prompt you to create the first admin account on first launch.
-
-After creating it, go to the Payload admin panel and change the user's `role` to **admin** (it defaults to `user`).
+App available at **http://localhost:3000**.
 
 ---
 
@@ -142,9 +113,9 @@ After creating it, go to the Payload admin panel and change the user's `role` to
 | Role | Capabilities |
 |---|---|
 | `user` | Register, submit listings, view own listings |
-| `admin` | Full Payload admin panel, assign dealers, change status |
+| `admin` | Manage listings via Firebase Console, assign dealers, change status |
 
-Payload's JWT token is stored as an `httpOnly` cookie (`payload-token`). Middleware protects `/dashboard` and `/submit`.
+Firebase Auth ID tokens are exchanged for a server-side `session` httpOnly cookie. Middleware protects `/dashboard` and `/submit`.
 
 ---
 
@@ -161,26 +132,17 @@ A locale switcher in the header lets users switch between languages. All UI stri
 
 ---
 
-## 🗄️ Payload CMS Collections
+## 🗄️ Firestore Collections
 
 ### `users`
-- `name`, `email`, `password` (auth), `phone`, `role`
+- `name`, `email`, `phone`, `role`, `createdAt`
 
-### `scrap-listings`
+### `listings`
 - `title`, `type`, `weight`, `description`, `location`
 - `phone` ★ (primary contact for Bangladesh customers)
-- `images` (upload, up to 5)
+- `images` (up to 5, stored in Firebase Storage)
 - `status` (pending → connected → completed / rejected)
-- `assignedDealer` (relationship → dealers)
-
-### `dealers`
-- `name`, `phone`, `altPhone`, `address`, `area`
-- `materialsAccepted` (multi-select)
-- `isActive`
-
-### `media`
-- Image uploads stored in `public/media/`
-- Auto-generates `thumbnail` (400×300) and `card` (768×576) sizes
+- `userId` (reference to user)
 
 ---
 
@@ -191,7 +153,7 @@ User registers / logs in
        ↓
 Submits scrap listing (status: pending)
        ↓
-Admin reviews in Payload dashboard (/admin)
+Admin reviews in Firebase Console / custom admin page
        ↓
 Admin assigns dealer → status: connected
        ↓
@@ -204,10 +166,7 @@ Deal completed → status: completed
 
 ## 🛠️ Admin Operations
 
-1. **Navigate to** http://localhost:3000/admin
-2. **Manage listings** → filter by status, type, location
-3. **Assign a dealer**: Open a listing → sidebar → select dealer → change status to `Connected`
-4. **Add dealers**: Collections → Dealers → Create
+Manage listings and users directly via the **Firebase Console** (Firestore database view) or build a custom admin page.
 
 ---
 
@@ -222,8 +181,10 @@ pnpm start
 
 ```env
 NODE_ENV=production
-DATABASE_URI=mongodb+srv://...your-atlas-uri...
-PAYLOAD_SECRET=<strong-random-64-char-secret>
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+FIREBASE_ADMIN_PROJECT_ID=...
+FIREBASE_ADMIN_CLIENT_EMAIL=...
+FIREBASE_ADMIN_PRIVATE_KEY="..."
 NEXT_PUBLIC_SERVER_URL=https://yourdomain.com.bd
 ```
 
