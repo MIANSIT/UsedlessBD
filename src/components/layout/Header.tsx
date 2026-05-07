@@ -10,7 +10,6 @@ interface HeaderProps {
 }
 
 // The Header receives user state via a client wrapper; auth is checked server-side in pages.
-// For the nav, we check the payload-token cookie on the client side via a lightweight check.
 export default function Header({ locale }: HeaderProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()

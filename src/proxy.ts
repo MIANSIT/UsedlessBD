@@ -10,12 +10,8 @@ const PROTECTED_PATHS = ['/dashboard', '/submit']
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // ── Skip Payload CMS routes ──────────────────────────────────────
-  if (
-    pathname.startsWith('/admin') ||
-    pathname.startsWith('/api') ||
-    pathname.startsWith('/media')
-  ) {
+  // ── Skip API and static asset routes ──────────────────────────────
+  if (pathname.startsWith('/api') || pathname.startsWith('/media')) {
     return NextResponse.next()
   }
 
@@ -34,7 +30,7 @@ export function proxy(request: NextRequest) {
   )
 
   if (isProtected) {
-    const token = request.cookies.get('payload-token')
+    const token = request.cookies.get('session')
     if (!token) {
       const locale = localePrefix ?? routing.defaultLocale
       const loginPath = locale === routing.defaultLocale ? '/login' : `/${locale}/login`

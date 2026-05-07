@@ -1,8 +1,6 @@
 import { useTranslations } from 'next-intl'
-import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@payload-config'
+import { getCurrentUser } from '@/app/actions/auth'
 import ScrapListingForm from '@/components/forms/ScrapListingForm'
 import type { Metadata } from 'next'
 
@@ -17,8 +15,7 @@ export default async function SubmitPage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
+  const user = await getCurrentUser()
 
   if (!user) {
     redirect(`/${locale === 'en' ? '' : locale + '/'}login?callbackUrl=/${locale === 'en' ? '' : locale + '/'}submit`)

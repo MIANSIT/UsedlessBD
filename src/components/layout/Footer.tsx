@@ -69,7 +69,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <p>© {year} {t('common.appName')}. All rights reserved.</p>
-          <p>Built with Next.js &amp; Payload CMS</p>
+          <p>Built with Next.js &amp; Firebase</p>
         </div>
       </div>
     </footer>
