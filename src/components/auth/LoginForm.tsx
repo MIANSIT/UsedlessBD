@@ -18,7 +18,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (state?.success) {
-      router.push('/dashboard')
+      router.push('/my-listings')
       router.refresh()
     }
   }, [state, router])

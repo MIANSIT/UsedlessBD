@@ -15,6 +15,7 @@
   "nav": {
     "home": "Home",
     "submitScrap": "Sell An Item",
+    "myListings": "My Listings",
     "dashboard": "My Listings",
     "login": "Login",
     "register": "Register",
@@ -77,40 +78,48 @@
     }
   },
   "listing": {
-    "title": "Listing Title",
+    "titleLabel": "Item Title",
     "titlePlaceholder": "e.g., Old Canon camera, barely used",
-    "type": "Category",
-    "typePlaceholder": "Select a category",
-    "weight": "Estimated Weight (kg)",
-    "weightPlaceholder": "e.g., 2",
-    "description": "Description",
-    "descriptionPlaceholder": "Describe the item honestly — condition, any defects, why you're selling it…",
-    "location": "Your Location",
-    "locationPlaceholder": "e.g., Mirpur-10, Dhaka",
-    "phone": "Your Phone Number",
-    "phonePlaceholder": "e.g., 01712345678",
-    "phoneHelp": "We'll call you to arrange a meetup with the buyer",
-    "images": "Photos",
+    "categoryLabel": "Category",
+    "categoryPlaceholder": "Select a category",
+    "conditionLabel": "Condition",
+    "conditionPlaceholder": "Select condition",
+    "priceLabel": "Asking Price (৳)",
+    "negotiableLabel": "Negotiable",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe the item honestly — condition, any defects, why you're selling…",
+    "divisionLabel": "Division",
+    "divisionPlaceholder": "Select division",
+    "districtLabel": "District",
+    "districtPlaceholder": "Select district",
+    "selectDivisionFirst": "Select division first",
+    "imagesLabel": "Photos",
     "imagesHelp": "Upload up to 5 photos (max 5 MB each). Real photos build trust!",
     "submitListing": "List My Item",
     "submitting": "Listing…",
-    "submitSuccess": "Your item is live! We'll connect you with a buyer shortly. 💙",
+    "submitSuccess": "✅ Listed! Our team will review and connect you with a buyer soon.",
     "status": {
       "pending": "Pending",
-      "connected": "Connected",
-      "completed": "Sold",
+      "active": "Active",
+      "sold": "Sold",
       "rejected": "Rejected"
     },
-    "types": {
-      "metal": "Metal",
-      "plastic": "Plastic",
+    "categories": {
       "electronics": "Electronics",
-      "paper": "Paper",
-      "glass": "Glass",
-      "other": "Other"
+      "furniture": "Furniture",
+      "fashion": "Fashion",
+      "books": "Books",
+      "sports": "Sports",
+      "home_garden": "Home & Garden",
+      "others": "Others"
     },
-    "assignedDealer": "Assigned Buyer",
-    "noDealer": "Awaiting buyer match"
+    "conditions": {
+      "brand_new": "Brand New",
+      "like_new": "Like New",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor"
+    }
   },
   "auth": {
     "login": {
@@ -150,14 +159,13 @@
     "subtitle": "Track all your listed items in one place",
     "noListings": "Nothing listed yet — your stuff won't sell itself! 😄",
     "submitFirst": "List Your First Item",
-    "weight": "kg",
     "assignedDealer": "Buyer",
     "dealerPhone": "Buyer Phone",
     "submittedOn": "Listed on",
     "newListing": "New Listing"
   },
   "submit": {
-    "title": "List an Item",
+    "title": "List করুন",
     "subtitle": "Honest description + clear photos = fast sale. Fill in the details below."
   },
   "errors": {

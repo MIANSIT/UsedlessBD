@@ -223,7 +223,7 @@ function HomeContent() {
               {t('home.cta.buttonSell')} →
             </Link>
             <Link
-              href="/dashboard"
+              href="/my-listings"
               className="inline-flex items-center gap-2 border-2 border-white/50 text-white font-semibold px-10 py-4 rounded-xl hover:bg-white/10 transition-all text-lg"
             >
               {t('home.cta.buttonBuy')}

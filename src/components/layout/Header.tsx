@@ -18,7 +18,7 @@ export default function Header({ locale }: HeaderProps) {
   const navLinks = [
     { href: '/', label: t('home') },
     { href: '/submit', label: t('submitScrap') },
-    { href: '/dashboard', label: t('dashboard') },
+    { href: '/my-listings', label: t('dashboard') },
   ]
 
   return (

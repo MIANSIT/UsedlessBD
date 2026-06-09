@@ -1,12 +1,11 @@
-import { useTranslations } from 'next-intl'
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/app/actions/auth'
-import ScrapListingForm from '@/components/forms/ScrapListingForm'
+import ListingForm from '@/components/forms/ListingForm'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Submit Scrap Listing',
-  description: 'Submit your scrap listing and get connected with a verified dealer.',
+  title: 'List an Item',
+  description: 'List your secondhand item and connect with a buyer in Bangladesh.',
 }
 
 export default async function SubmitPage({
@@ -18,37 +17,31 @@ export default async function SubmitPage({
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(`/${locale === 'en' ? '' : locale + '/'}login?callbackUrl=/${locale === 'en' ? '' : locale + '/'}submit`)
+    redirect(`/${locale === 'en' ? '' : locale + '/'}login?next=/${locale === 'en' ? '' : locale + '/'}submit`)
   }
 
-  return <SubmitContent />
-}
-
-function SubmitContent() {
-  const t = useTranslations()
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-snow py-12">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-        {/* Page Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{t('submit.title')}</h1>
-          <p className="mt-2 text-gray-500">{t('submit.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-charcoal">List করুন</h1>
+          <p className="mt-2 text-muted">
+            সৎ বিবরণ + স্পষ্ট ছবি = দ্রুত বিক্রি। Honest listing + clear photos = fast sale.
+          </p>
         </div>
 
-        {/* Phone number callout */}
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-          <span className="text-2xl">📞</span>
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-[8px] p-4 flex items-start gap-3">
+          <span className="text-2xl">✅</span>
           <div>
-            <p className="font-semibold text-amber-900 text-sm">Phone number is important</p>
+            <p className="font-semibold text-amber-900 text-sm">After submission</p>
             <p className="text-amber-700 text-sm mt-0.5">
-              We primarily contact customers via phone in Bangladesh. Make sure your number is
-              correct and active.
+              Your listing will be reviewed by our team. Once approved, we&apos;ll connect you
+              with an interested buyer. আপনাকে কল করব! 📞
             </p>
           </div>
         </div>
 
-        <ScrapListingForm />
+        <ListingForm />
       </div>
     </div>
   )

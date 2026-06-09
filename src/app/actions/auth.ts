@@ -113,8 +113,10 @@ export async function registerAction(
       name: parsed.data.name,
       email: parsed.data.email,
       phone: parsed.data.phone,
-      role: 'user',
+      role: 'seller',
+      status: 'active',
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     })
 
     // Auto-login after registration
