@@ -38,7 +38,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="hover:text-white transition-colors">
+                <Link href="/my-listings" className="hover:text-white transition-colors">
                   {t('nav.dashboard')}
                 </Link>
               </li>

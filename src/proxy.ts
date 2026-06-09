@@ -4,18 +4,18 @@ import { routing } from './i18n/routing'
 
 const intlMiddleware = createMiddleware(routing)
 
-// Routes that require authentication (matched AFTER stripping locale)
-const PROTECTED_PATHS = ['/dashboard', '/submit']
+const SELLER_PATHS = ['/submit', '/my-listings', '/profile']
+const ADMIN_PATHS  = ['/admin']
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // ── Skip API and static asset routes ──────────────────────────────
+  // Skip API and static assets
   if (pathname.startsWith('/api') || pathname.startsWith('/media')) {
     return NextResponse.next()
   }
 
-  // ── Extract locale from URL (e.g. /bn/dashboard → /dashboard) ───
+  // Strip locale prefix to get the canonical path
   const locales = routing.locales as readonly string[]
   const localePrefix = locales.find(
     (loc) => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`,
@@ -24,27 +24,27 @@ export function proxy(request: NextRequest) {
     ? pathname.slice(localePrefix.length + 1) || '/'
     : pathname
 
-  // ── Auth guard for protected routes ──────────────────────────────
-  const isProtected = PROTECTED_PATHS.some(
+  const isSellerRoute = SELLER_PATHS.some(
+    (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(`${p}/`),
+  )
+  const isAdminRoute = ADMIN_PATHS.some(
     (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(`${p}/`),
   )
 
-  if (isProtected) {
-    const token = request.cookies.get('session')
-    if (!token) {
+  if (isSellerRoute || isAdminRoute) {
+    const sessionCookie = request.cookies.get('session')
+    if (!sessionCookie) {
       const locale = localePrefix ?? routing.defaultLocale
       const loginPath = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
       const loginUrl = new URL(loginPath, request.url)
-      loginUrl.searchParams.set('callbackUrl', pathname)
+      loginUrl.searchParams.set('next', pathname)
       return NextResponse.redirect(loginUrl)
     }
   }
 
-  // ── Apply next-intl locale routing ───────────────────────────────
   return intlMiddleware(request)
 }
 
 export const config = {
-  // Match all paths except Next.js internals and static files
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 }

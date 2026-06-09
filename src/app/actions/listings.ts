@@ -111,25 +111,19 @@ export async function getUserListings() {
   const user = await getSessionUser()
   if (!user) return null
 
+  // Single-field equality + orderBy on the same field avoids composite index requirements.
+  // Filtering out soft-deleted docs is done in JS so no extra index is needed.
   const snapshot = await adminDb()
     .collection('listings')
     .where('sellerId', '==', user.uid)
-    .where('deletedAt', '==', null)
     .orderBy('createdAt', 'desc')
     .get()
-    .catch(async () => {
-      // Fallback if compound index not ready
-      return adminDb()
-        .collection('listings')
-        .where('sellerId', '==', user.uid)
-        .orderBy('createdAt', 'desc')
-        .get()
-    })
 
   const listings = snapshot.docs
     .map((doc) => {
       const data = doc.data()
-      if (data.deletedAt) return null
+      // Skip soft-deleted listings (deletedAt field present, or status 'deleted')
+      if (data.deletedAt || data.status === 'deleted') return null
       return {
         id: doc.id,
         ...data,

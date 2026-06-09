@@ -33,7 +33,7 @@ const RegisterSchema = z.object({
   phone: z
     .string()
     .min(11, 'Phone number must be at least 11 digits')
-    .regex(/^(\+880|880|0)1[3-9]\d{8}$/, 'Enter a valid Bangladeshi phone number'),
+    .regex(/^(\+880|880|0)1[0-9]\d{8}$/, 'Enter a valid Bangladeshi phone number (e.g. 01712345678)'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 
@@ -120,16 +120,38 @@ export async function registerAction(
     })
 
     // Auto-login after registration
+    // Small delay to allow Firebase to propagate the new user before REST sign-in
+    await new Promise((r) => setTimeout(r, 500))
     const idToken = await signInWithPassword(parsed.data.email, parsed.data.password)
     await setSessionCookie(idToken)
 
     return { success: true }
   } catch (err: unknown) {
     console.error('[registerAction] error:', err)
+    const message = (err as Error)?.message ?? ''
     const code = (err as { code?: string }).code
+
     if (code === 'auth/email-already-exists') {
       return { success: false, error: 'An account with this email already exists.' }
     }
+    if (code === 'auth/invalid-password' || code === 'auth/weak-password') {
+      return { success: false, error: 'Password is too weak. Use at least 8 characters.' }
+    }
+    if (code === 'auth/invalid-email') {
+      return {
+        success: false,
+        error: 'Validation failed',
+        fieldErrors: { email: ['Invalid email address'] },
+      }
+    }
+    if (message.includes('Missing Firebase Admin credentials')) {
+      return {
+        success: false,
+        error:
+          'Server is not configured. Set FIREBASE_ADMIN_CLIENT_EMAIL and FIREBASE_ADMIN_PRIVATE_KEY in your .env.local file.',
+      }
+    }
+
     return { success: false, error: 'Registration failed. Please try again.' }
   }
 }

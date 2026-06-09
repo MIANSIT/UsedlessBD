@@ -278,7 +278,7 @@ const MerchantSchema = z.object({
   phone: z
     .string()
     .min(11)
-    .regex(/^(\+880|880|0)1[3-9]\d{8}$/, 'Enter a valid BD phone number'),
+    .regex(/^(\+880|880|0)1[0-9]\d{8}$/, 'Enter a valid BD phone number'),
   email: z.string().email('Valid email required').optional().or(z.literal('')),
   categories: z.array(z.string()).min(1, 'At least one category'),
   areas: z.array(z.string()).min(1, 'At least one area'),

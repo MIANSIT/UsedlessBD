@@ -20,8 +20,8 @@ function LoginContent() {
         {/* Logo / Brand */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <span className="text-3xl font-extrabold text-primary-600">🌿 Scrap</span>
-            <span className="text-3xl font-extrabold text-gray-800">Market</span>
+            <span className="text-3xl font-extrabold text-primary-600">Usedless</span>
+            <span className="text-3xl font-extrabold text-gray-800">BD</span>
           </Link>
         </div>
 
