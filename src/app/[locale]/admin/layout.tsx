@@ -32,7 +32,8 @@ export default async function AdminLayout({
   const admin = await getAdminFromCookie()
 
   if (!admin) {
-    redirect(`/${locale === 'en' ? '' : locale + '/'}login?next=/${locale === 'en' ? '' : locale + '/'}admin`)
+    const prefix = locale === 'en' ? '' : `${locale}/`
+    redirect(`/${prefix}admin-login`)
   }
 
   return (

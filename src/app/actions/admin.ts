@@ -220,7 +220,8 @@ export async function getAdminUsers() {
     return {
       id: doc.id,
       ...data,
-      createdAt: data.createdAt ?? '',
+      createdAt: data.createdAt?.toDate?.()?.toISOString() ?? '',
+      updatedAt: data.updatedAt?.toDate?.()?.toISOString() ?? '',
     }
   })
 }
@@ -299,7 +300,12 @@ export async function getMerchants() {
     .map((doc) => {
       const data = doc.data()
       if (data.deletedAt) return null
-      return { id: doc.id, ...data, createdAt: data.createdAt ?? '' }
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.()?.toISOString() ?? '',
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() ?? '',
+      }
     })
     .filter(Boolean)
 }
@@ -425,7 +431,162 @@ export async function getAuditLogs(limitCount = 100) {
   })
 }
 
+// ─── Create User (super_admin only) ──────────────────────────────────────────
+
+const CreateUserSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Valid email required'),
+  phone: z
+    .string()
+    .regex(/^(\+880|880|0)1[0-9]\d{8}$/, 'Enter a valid BD phone number'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  role: z.enum(['seller', 'admin', 'module_admin', 'super_admin']),
+})
+
+export async function createUserAction(
+  _prev: AdminResult | null,
+  formData: FormData,
+): Promise<AdminResult> {
+  const admin = await getAdminUser()
+  if (!admin) return { success: false, error: 'Unauthorized' }
+  if (admin.role !== 'super_admin') {
+    return { success: false, error: 'Only super admins can create users.' }
+  }
+
+  const raw = {
+    name: formData.get('name') as string,
+    email: formData.get('email') as string,
+    phone: formData.get('phone') as string,
+    password: formData.get('password') as string,
+    role: formData.get('role') as string,
+  }
+
+  const parsed = CreateUserSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? 'Validation failed' }
+  }
+
+  try {
+    const userRecord = await adminAuth().createUser({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      displayName: parsed.data.name,
+    })
+
+    await adminDb().collection('users').doc(userRecord.uid).set({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      phone: parsed.data.phone,
+      role: parsed.data.role,
+      status: 'active',
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    })
+
+    await writeAuditLog({
+      actorId: admin.uid, actorName: admin.name, actorRole: admin.role,
+      action: 'USER_CREATED', module: 'users',
+      targetId: userRecord.uid, targetType: 'user',
+      previousValue: null,
+      newValue: { name: parsed.data.name, email: parsed.data.email, role: parsed.data.role },
+    })
+
+    return { success: true, id: userRecord.uid }
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code
+    if (code === 'auth/email-already-exists') {
+      return { success: false, error: 'An account with this email already exists.' }
+    }
+    return { success: false, error: 'Failed to create user. Please try again.' }
+  }
+}
+
+// ─── Create Listing (super_admin only) ───────────────────────────────────────
+
+const AdminListingSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters').max(80),
+  category: z.enum(['electronics', 'furniture', 'fashion', 'books', 'sports', 'home_garden', 'others']),
+  condition: z.enum(['brand_new', 'like_new', 'good', 'fair', 'poor']),
+  description: z.string().max(500).optional(),
+  price: z.coerce.number().min(1, 'Price must be at least 1'),
+  negotiable: z.enum(['true', 'false']).transform((v) => v === 'true'),
+  division: z.string().min(1, 'Division is required'),
+  district: z.string().min(1, 'District is required'),
+  sellerName: z.string().min(1, 'Seller name is required'),
+  sellerPhone: z
+    .string()
+    .regex(/^(\+880|880|0)1[0-9]\d{8}$/, 'Enter a valid BD phone number'),
+})
+
+export async function createListingAdminAction(
+  _prev: AdminResult | null,
+  formData: FormData,
+): Promise<AdminResult> {
+  const admin = await getAdminUser()
+  if (!admin) return { success: false, error: 'Unauthorized' }
+  if (admin.role !== 'super_admin') {
+    return { success: false, error: 'Only super admins can create listings.' }
+  }
+
+  const raw = {
+    title: formData.get('title') as string,
+    category: formData.get('category') as string,
+    condition: formData.get('condition') as string,
+    description: (formData.get('description') as string) || undefined,
+    price: formData.get('price') as string,
+    negotiable: (formData.get('negotiable') as string) || 'false',
+    division: formData.get('division') as string,
+    district: formData.get('district') as string,
+    sellerName: formData.get('sellerName') as string,
+    sellerPhone: formData.get('sellerPhone') as string,
+  }
+
+  const parsed = AdminListingSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? 'Validation failed' }
+  }
+
+  try {
+    const ref = await adminDb().collection('listings').add({
+      title: parsed.data.title,
+      category: parsed.data.category,
+      condition: parsed.data.condition,
+      description: parsed.data.description ?? '',
+      price: parsed.data.price,
+      negotiable: parsed.data.negotiable,
+      photos: [],
+      location: { division: parsed.data.division, district: parsed.data.district },
+      sellerId: admin.uid,
+      sellerName: parsed.data.sellerName,
+      sellerPhone: parsed.data.sellerPhone,
+      status: 'active',
+      viewCount: 0,
+      createdByAdmin: true,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    })
+
+    await writeAuditLog({
+      actorId: admin.uid, actorName: admin.name, actorRole: admin.role,
+      action: 'LISTING_CREATED_BY_ADMIN', module: 'listings',
+      targetId: ref.id, targetType: 'listing',
+      previousValue: null,
+      newValue: { title: parsed.data.title, status: 'active' },
+    })
+
+    return { success: true, id: ref.id }
+  } catch (err) {
+    console.error('[createListingAdminAction]', err)
+    return { success: false, error: 'Failed to create listing. Please try again.' }
+  }
+}
+
 // ─── Overview Stats ───────────────────────────────────────────────────────────
+
+export async function getAdminRole(): Promise<string | null> {
+  const admin = await getAdminUser()
+  return admin?.role ?? null
+}
 
 export async function getAdminStats() {
   const admin = await getAdminUser()

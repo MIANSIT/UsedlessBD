@@ -35,7 +35,10 @@ export function proxy(request: NextRequest) {
     const sessionCookie = request.cookies.get('session')
     if (!sessionCookie) {
       const locale = localePrefix ?? routing.defaultLocale
-      const loginPath = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
+      const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
+      const loginPath = isAdminRoute
+        ? `${prefix}/admin-login`
+        : `${prefix}/login`
       const loginUrl = new URL(loginPath, request.url)
       loginUrl.searchParams.set('next', pathname)
       return NextResponse.redirect(loginUrl)

@@ -1,4 +1,4 @@
-import { getAdminListings } from '@/app/actions/admin'
+import { getAdminListings, getAdminRole } from '@/app/actions/admin'
 import AdminListingsTable from '@/components/admin/AdminListingsTable'
 import type { Metadata } from 'next'
 
@@ -10,15 +10,13 @@ export default async function AdminListingsPage({
   searchParams: Promise<{ status?: string }>
 }) {
   const { status } = await searchParams
-  const listings = await getAdminListings(status)
+  const [listings, adminRole] = await Promise.all([getAdminListings(status), getAdminRole()])
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-charcoal">Listings</h2>
-          <p className="text-muted text-sm mt-1">Review, approve, and manage all listings</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-charcoal">Listings</h2>
+        <p className="text-muted text-sm mt-1">Review, approve, and manage all listings</p>
       </div>
 
       {/* Status filter tabs */}
@@ -38,7 +36,7 @@ export default async function AdminListingsPage({
         ))}
       </div>
 
-      <AdminListingsTable listings={listings ?? []} />
+      <AdminListingsTable listings={listings ?? []} adminRole={adminRole ?? ''} />
     </div>
   )
 }

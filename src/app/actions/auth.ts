@@ -156,6 +156,56 @@ export async function registerAction(
   }
 }
 
+const ADMIN_ROLES = ['admin', 'module_admin', 'super_admin']
+
+export async function adminLoginAction(
+  _prevState: AuthResult | null,
+  formData: FormData,
+): Promise<AuthResult> {
+  const raw = {
+    email: formData.get('email') as string,
+    password: formData.get('password') as string,
+  }
+
+  const parsed = LoginSchema.safeParse(raw)
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: 'Validation failed',
+      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+    }
+  }
+
+  try {
+    const idToken = await signInWithPassword(parsed.data.email, parsed.data.password)
+
+    // Verify role before issuing a session cookie
+    const decoded = await adminAuth().verifyIdToken(idToken)
+    const userDoc = await adminDb().collection('users').doc(decoded.uid).get()
+
+    if (!userDoc.exists) {
+      return { success: false, error: 'Account not found in the system.' }
+    }
+
+    const userData = userDoc.data()!
+    if (!ADMIN_ROLES.includes(userData.role as string)) {
+      return {
+        success: false,
+        error: 'Access denied — this account does not have admin privileges.',
+      }
+    }
+
+    await setSessionCookie(idToken)
+    return { success: true }
+  } catch (err: unknown) {
+    const message = (err as Error)?.message ?? ''
+    if (message === 'Invalid email or password') {
+      return { success: false, error: 'Invalid email or password.' }
+    }
+    return { success: false, error: 'Login failed. Please try again.' }
+  }
+}
+
 export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete('session')
