@@ -103,10 +103,12 @@ export default function Header({ locale }: HeaderProps) {
 }
 
 function LocaleSwitcher({ locale }: { locale: string }) {
+  const pathname = usePathname()
+
   return (
     <div className="flex items-center gap-1 text-xs">
       <Link
-        href="/"
+        href={pathname}
         locale="en"
         className={`px-2 py-1 rounded-md font-medium ${
           locale === 'en' ? 'bg-primary-100 text-primary-700' : 'text-gray-500 hover:text-gray-800'
@@ -115,7 +117,7 @@ function LocaleSwitcher({ locale }: { locale: string }) {
         EN
       </Link>
       <Link
-        href="/"
+        href={pathname}
         locale="bn"
         className={`px-2 py-1 rounded-md font-medium ${
           locale === 'bn' ? 'bg-primary-100 text-primary-700' : 'text-gray-500 hover:text-gray-800'

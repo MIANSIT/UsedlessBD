@@ -1,7 +1,6 @@
 import { cert, getApps, getApp, initializeApp, type App } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getFirestore } from 'firebase-admin/firestore'
-import { getStorage } from 'firebase-admin/storage'
 
 function getAdminApp(): App {
   if (getApps().length) return getApp()
@@ -19,12 +18,8 @@ function getAdminApp(): App {
 
   return initializeApp({
     credential: cert({ projectId, clientEmail, privateKey }),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   })
 }
 
-// Lazy getters — Firebase Admin initialises on first call, not at module parse
-// time, so process.env values are always available when these run.
 export const adminAuth = () => getAuth(getAdminApp())
 export const adminDb = () => getFirestore(getAdminApp())
-export const adminStorage = () => getStorage(getAdminApp())

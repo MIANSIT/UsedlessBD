@@ -96,7 +96,11 @@ export default function ListingCard({ listing }: { listing: any }) {
 
         {/* Price */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary-600">৳{listing.price?.toLocaleString()}</span>
+          {listing.price != null ? (
+            <span className="text-lg font-bold text-primary-600">৳{listing.price.toLocaleString()}</span>
+          ) : (
+            <span className="text-sm font-medium text-muted italic">Price not set</span>
+          )}
           {listing.negotiable && (
             <span className="text-xs text-secondary-600 bg-secondary-50 px-2 py-0.5 rounded-[4px] font-medium">
               Negotiable

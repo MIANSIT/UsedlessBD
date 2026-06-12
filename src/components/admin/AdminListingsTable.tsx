@@ -97,8 +97,8 @@ function CreateListingModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Price (৳)</label>
-              <input name="price" type="number" min={1} required className={inputCls} placeholder="500" />
+              <label className={labelCls}>Price ৳ <span className="text-gray-400 font-normal">(optional)</span></label>
+              <input name="price" type="number" min={1} className={inputCls} placeholder="Leave blank if unsure" />
             </div>
             <div className="flex flex-col justify-end pb-0.5">
               <label className="flex items-center gap-2 text-sm text-charcoal cursor-pointer select-none">
@@ -305,7 +305,7 @@ export default function AdminListingsTable({ listings, adminRole }: { listings: 
                         {CATEGORY_LABELS[listing.category] ?? listing.category}
                       </td>
                       <td className="px-4 py-3 font-semibold text-primary-700">
-                        ৳{listing.price?.toLocaleString()}
+                        {listing.price != null ? `৳${listing.price.toLocaleString()}` : <span className="text-xs text-muted font-normal italic">—</span>}
                         {listing.negotiable && <span className="ml-1 text-[10px] text-secondary-600 font-normal">(neg)</span>}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted">{locationLabel}</td>

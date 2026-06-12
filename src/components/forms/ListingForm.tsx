@@ -56,21 +56,51 @@ export default function ListingForm() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
-    if (uploadedImages.length + files.length > 5) {
-      setUploadError('Maximum 5 images allowed')
+
+    const slots = 5 - uploadedImages.length
+    const toUpload = files.slice(0, slots)
+
+    if (files.length > slots) {
+      setUploadError(`Only ${slots} more image${slots !== 1 ? 's' : ''} can be added (max 5 total)`)
+    } else {
+      setUploadError(null)
+    }
+    if (!toUpload.length) return
+
+    const oversized = toUpload.find((f) => f.size > 5_000_000)
+    if (oversized) {
+      setUploadError(`"${oversized.name}" exceeds the 5 MB limit`)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
-    setUploadError(null)
+
     setIsUploading(true)
     try {
-      for (const file of files) {
-        if (file.size > 5_000_000) { setUploadError(`${file.name} exceeds 5 MB`); continue }
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await fetch('/api/media', { method: 'POST', body: fd, credentials: 'include' })
-        if (!res.ok) { setUploadError(`Failed to upload ${file.name}`); continue }
-        const data = await res.json()
-        setUploadedImages((prev) => [...prev, { url: data.url, name: file.name }])
+      // Upload all selected files in parallel
+      const results = await Promise.allSettled(
+        toUpload.map(async (file) => {
+          const fd = new FormData()
+          fd.append('file', file)
+          const res = await fetch('/api/media', { method: 'POST', body: fd, credentials: 'include' })
+          const data: { url?: string; error?: string } = await res.json()
+          if (!res.ok) throw new Error(data.error ?? `Failed to upload "${file.name}"`)
+          return { url: data.url!, name: file.name }
+        }),
+      )
+
+      const succeeded = results
+        .filter((r): r is PromiseFulfilledResult<UploadedImage> => r.status === 'fulfilled')
+        .map((r) => r.value)
+
+      const failed = results.filter(
+        (r): r is PromiseRejectedResult => r.status === 'rejected',
+      )
+
+      if (succeeded.length) {
+        setUploadedImages((prev) => [...prev, ...succeeded])
+      }
+      if (failed.length) {
+        setUploadError(failed[0].reason?.message ?? 'Some images failed to upload')
       }
     } catch {
       setUploadError('Image upload failed. Please try again.')
@@ -134,10 +164,9 @@ export default function ListingForm() {
           <Input
             name="price"
             type="number"
-            label={t('priceLabel')}
-            placeholder="0"
+            label={`${t('priceLabel')} (optional)`}
+            placeholder="Leave blank if unsure"
             min="1"
-            required
             error={fieldErrors.price?.[0]}
           />
           <div className="flex items-center gap-3 pb-2">
